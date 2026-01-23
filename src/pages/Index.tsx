@@ -48,44 +48,6 @@ const Index = () => {
               and receive specialist recommendations powered by advanced vision AI.
             </p>
             
-            {/* Features */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
-              <Card className="shadow-card border-0 bg-card">
-                <CardContent className="pt-6 text-center">
-                  <div className="p-3 rounded-xl bg-primary/10 w-fit mx-auto mb-3">
-                    <Brain className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1">Vision AI Analysis</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Google Gemini 2.5 Pro multimodal AI for accurate detection
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card border-0 bg-card">
-                <CardContent className="pt-6 text-center">
-                  <div className="p-3 rounded-xl bg-primary/10 w-fit mx-auto mb-3">
-                    <Zap className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1">Instant Results</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Comprehensive analysis in seconds, not hours
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card border-0 bg-card">
-                <CardContent className="pt-6 text-center">
-                  <div className="p-3 rounded-xl bg-primary/10 w-fit mx-auto mb-3">
-                    <ShieldCheck className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1">Clinical Guidance</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Specialist referrals and medication suggestions
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         )}
 
@@ -126,32 +88,6 @@ const Index = () => {
               </Button>
             )}
 
-            {/* Algorithm Info Card - Show when no analysis */}
-            {!analysis && (
-              <Card className="shadow-soft mt-6">
-                <CardContent className="pt-6">
-                  <h4 className="font-semibold text-foreground mb-3">AI/ML Algorithms Used</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>Vision-Language Model (VLM):</strong> Google Gemini 2.5 Pro - multimodal transformer for medical image understanding</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>Image Classification:</strong> Deep neural network patterns for fracture type identification</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>Semantic Segmentation:</strong> Anatomical region detection and bone structure mapping</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>NLP Generation:</strong> Transformer-based text generation for structured medical reports</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Results Section */}
