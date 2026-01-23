@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SeverityIndicator, SeverityBadge } from './SeverityIndicator';
 import { cn } from '@/lib/utils';
+import jsPDF from 'jspdf';
 
 interface Finding {
   type: string;
@@ -49,62 +50,139 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
     window.print();
   };
 
-  const handleDownload = () => {
-    const reportText = `
-BONE FRACTURE ANALYSIS REPORT
-Generated: ${new Date().toLocaleString()}
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 20;
 
-SCAN INFORMATION
-================
-Type: ${analysis.scanAnalysis.scanType}
-Body Region: ${analysis.scanAnalysis.bodyRegion}
-Image Quality: ${analysis.scanAnalysis.imageQuality}
+    const addWrappedText = (text: string, fontSize: number = 10, isBold: boolean = false) => {
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach((line: string) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += fontSize * 0.5;
+      });
+      y += 2;
+    };
 
-OVERALL ASSESSMENT
-==================
-Severity: ${analysis.overallSeverity} (Score: ${analysis.severityScore}/100)
+    const addSection = (title: string) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      y += 5;
+      doc.setDrawColor(0, 102, 204);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 7;
+      addWrappedText(title, 12, true);
+      y += 2;
+    };
 
-SUMMARY
-=======
-${analysis.summary}
+    // Header
+    doc.setFillColor(0, 102, 204);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OsteoVision AI', margin, 18);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Bone Fracture Analysis Report', margin, 26);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth - margin - 60, 26);
+    
+    doc.setTextColor(0, 0, 0);
+    y = 50;
 
-FINDINGS
-========
-${analysis.findings.map((f, i) => `
-${i + 1}. ${f.type}
-   Location: ${f.location}
-   Description: ${f.description}
-   Severity: ${f.severity}
-   Confidence: ${(f.confidence * 100).toFixed(0)}%
-`).join('\n')}
+    // Scan Information
+    addSection('SCAN INFORMATION');
+    addWrappedText(`Scan Type: ${analysis.scanAnalysis.scanType}`);
+    addWrappedText(`Body Region: ${analysis.scanAnalysis.bodyRegion}`);
+    addWrappedText(`Image Quality: ${analysis.scanAnalysis.imageQuality}`);
 
-RECOMMENDATIONS
-===============
-Immediate Action: ${analysis.recommendations.immediateAction}
+    // Overall Assessment
+    addSection('OVERALL ASSESSMENT');
+    const severityColor = getSeverityColor(analysis.overallSeverity);
+    doc.setTextColor(severityColor.r, severityColor.g, severityColor.b);
+    addWrappedText(`Severity: ${analysis.overallSeverity.toUpperCase()} (Score: ${analysis.severityScore}/100)`, 14, true);
+    doc.setTextColor(0, 0, 0);
 
-Specialist Referral:
-- Type: ${analysis.recommendations.specialistReferral.type}
-- Urgency: ${analysis.recommendations.specialistReferral.urgency}
-- Reason: ${analysis.recommendations.specialistReferral.reason}
+    // Summary
+    addSection('SUMMARY');
+    addWrappedText(analysis.summary);
 
-Suggested Medications:
-${analysis.recommendations.suggestedMedications.map(m => `- ${m.name}: ${m.purpose} (${m.note})`).join('\n')}
+    // Findings
+    if (analysis.findings.length > 0) {
+      addSection('DETAILED FINDINGS');
+      analysis.findings.forEach((finding, index) => {
+        addWrappedText(`${index + 1}. ${finding.type}`, 11, true);
+        addWrappedText(`   Location: ${finding.location}`);
+        addWrappedText(`   Description: ${finding.description}`);
+        addWrappedText(`   Severity: ${finding.severity} | Confidence: ${(finding.confidence * 100).toFixed(0)}%`);
+        y += 3;
+      });
+    }
 
-Additional Tests Recommended:
-${analysis.recommendations.additionalTests.map(t => `- ${t}`).join('\n')}
+    // Specialist Referral
+    addSection('SPECIALIST REFERRAL');
+    addWrappedText(`Recommended: ${analysis.recommendations.specialistReferral.type}`, 11, true);
+    addWrappedText(`Urgency: ${analysis.recommendations.specialistReferral.urgency}`);
+    addWrappedText(`Reason: ${analysis.recommendations.specialistReferral.reason}`);
 
-DISCLAIMER
-==========
-${analysis.disclaimer}
-    `;
+    // Medications
+    addSection('SUGGESTED MEDICATIONS');
+    analysis.recommendations.suggestedMedications.forEach((med) => {
+      addWrappedText(`• ${med.name} - ${med.purpose}`, 10, true);
+      addWrappedText(`  Note: ${med.note}`);
+    });
 
-    const blob = new Blob([reportText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bone-analysis-report-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Immediate Action
+    addSection('IMMEDIATE ACTION REQUIRED');
+    addWrappedText(analysis.recommendations.immediateAction);
+    
+    if (analysis.recommendations.additionalTests.length > 0) {
+      y += 3;
+      addWrappedText('Additional Tests Recommended:', 10, true);
+      analysis.recommendations.additionalTests.forEach((test) => {
+        addWrappedText(`• ${test}`);
+      });
+    }
+
+    // Disclaimer
+    addSection('DISCLAIMER');
+    doc.setTextColor(150, 100, 0);
+    addWrappedText(analysis.disclaimer, 9);
+    doc.setTextColor(0, 0, 0);
+
+    // Footer
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, 290, { align: 'center' });
+      doc.text('This report is for screening purposes only. Consult a healthcare professional.', pageWidth / 2, 295, { align: 'center' });
+    }
+
+    doc.save(`bone-analysis-report-${Date.now()}.pdf`);
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'normal': return { r: 34, g: 197, b: 94 };
+      case 'mild': return { r: 132, g: 204, b: 22 };
+      case 'moderate': return { r: 234, g: 179, b: 8 };
+      case 'severe': return { r: 249, g: 115, b: 22 };
+      case 'critical': return { r: 239, g: 68, b: 68 };
+      default: return { r: 0, g: 0, b: 0 };
+    }
   };
 
   return (
@@ -125,9 +203,9 @@ ${analysis.disclaimer}
             <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownload}>
+          <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4 mr-2" />
-            Download
+            Download PDF
           </Button>
         </div>
       </div>
