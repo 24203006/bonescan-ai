@@ -186,11 +186,11 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-fade-in-up">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl gradient-primary shadow-soft">
+          <div className="p-3 rounded-xl gradient-primary shadow-soft hover-glow transition-all duration-300">
             <FileText className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
@@ -199,11 +199,11 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Button variant="outline" size="sm" onClick={handlePrint} className="hover-scale">
             <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+          <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="hover-scale">
             <Download className="h-4 w-4 mr-2" />
             Download PDF
           </Button>
@@ -211,7 +211,7 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
       </div>
 
       {/* Overall Severity Card */}
-      <Card className="shadow-card border-2 overflow-hidden">
+      <Card className="glass shadow-card border-2 overflow-hidden animate-fade-in-up delay-100 hover-lift">
         <div className={cn(
           "h-2 w-full",
           analysis.overallSeverity.toLowerCase() === 'normal' && 'severity-normal',
@@ -223,15 +223,15 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Overall Assessment</p>
+              <p className="text-sm text-muted-foreground mb-1">Overall Assessment</p>
               <SeverityIndicator 
                 severity={analysis.overallSeverity} 
                 score={analysis.severityScore} 
                 size="lg" 
               />
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Scan Type</p>
+            <div className="text-right glass-subtle px-4 py-3 rounded-xl">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Scan Type</p>
               <p className="font-semibold text-foreground">{analysis.scanAnalysis.scanType}</p>
               <p className="text-sm text-muted-foreground">{analysis.scanAnalysis.bodyRegion}</p>
             </div>
@@ -240,10 +240,12 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
       </Card>
 
       {/* Summary */}
-      <Card className="shadow-card">
+      <Card className="glass shadow-card animate-fade-in-up delay-200 hover-lift">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Activity className="h-5 w-5 text-primary" />
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <Activity className="h-4 w-4 text-primary" />
+            </div>
             Summary
           </CardTitle>
         </CardHeader>
@@ -254,16 +256,22 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
 
       {/* Findings */}
       {analysis.findings.length > 0 && (
-        <Card className="shadow-card">
+        <Card className="glass shadow-card animate-fade-in-up delay-300 hover-lift">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Bone className="h-5 w-5 text-primary" />
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Bone className="h-4 w-4 text-primary" />
+              </div>
               Detailed Findings
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {analysis.findings.map((finding, index) => (
-              <div key={index} className="p-4 rounded-lg bg-muted/50 border">
+              <div 
+                key={index} 
+                className="p-4 rounded-xl glass-subtle border transition-all duration-300 hover:shadow-soft"
+                style={{ animationDelay: `${(index + 1) * 100}ms` }}
+              >
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h4 className="font-semibold text-foreground">{finding.type}</h4>
@@ -271,7 +279,7 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
                   </div>
                   <div className="flex items-center gap-3">
                     <SeverityBadge severity={finding.severity} />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted">
                       {(finding.confidence * 100).toFixed(0)}% confidence
                     </span>
                   </div>
@@ -286,15 +294,17 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
       {/* Recommendations */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Specialist Referral */}
-        <Card className="shadow-card">
+        <Card className="glass shadow-card animate-fade-in-up delay-400 hover-lift">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <UserCheck className="h-5 w-5 text-primary" />
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <UserCheck className="h-4 w-4 text-primary" />
+              </div>
               Specialist Referral
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/50">
               <div>
                 <p className="font-semibold text-foreground">
                   {analysis.recommendations.specialistReferral.type}
@@ -302,34 +312,39 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
                 <p className="text-xs text-muted-foreground">Recommended Specialist</p>
               </div>
               <span className={cn(
-                "px-3 py-1 rounded-full text-xs font-semibold",
-                analysis.recommendations.specialistReferral.urgency === 'Emergency' && 'bg-destructive text-destructive-foreground',
+                "px-3 py-1.5 rounded-full text-xs font-semibold transition-all",
+                analysis.recommendations.specialistReferral.urgency === 'Emergency' && 'bg-destructive text-destructive-foreground animate-pulse',
                 analysis.recommendations.specialistReferral.urgency === 'Urgent' && 'severity-severe text-primary-foreground',
                 analysis.recommendations.specialistReferral.urgency === 'Routine' && 'bg-muted text-muted-foreground',
               )}>
                 {analysis.recommendations.specialistReferral.urgency}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {analysis.recommendations.specialistReferral.reason}
             </p>
           </CardContent>
         </Card>
 
         {/* Medications */}
-        <Card className="shadow-card">
+        <Card className="glass shadow-card animate-fade-in-up delay-500 hover-lift">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Pill className="h-5 w-5 text-primary" />
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Pill className="h-4 w-4 text-primary" />
+              </div>
               Suggested Medications
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {analysis.recommendations.suggestedMedications.map((med, index) => (
-              <div key={index} className="p-3 rounded-lg bg-muted/50 border">
+              <div 
+                key={index} 
+                className="p-3 rounded-xl glass-subtle border transition-all duration-300 hover:shadow-soft"
+              >
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-foreground">{med.name}</p>
-                  <span className="text-xs text-muted-foreground">{med.purpose}</span>
+                  <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted">{med.purpose}</span>
                 </div>
                 <p className="text-xs text-muted-foreground italic mt-1">{med.note}</p>
               </div>
@@ -339,24 +354,29 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
       </div>
 
       {/* Immediate Action */}
-      <Card className="shadow-card border-primary/20 bg-primary/5">
+      <Card className="glass shadow-card border-primary/20 bg-primary/5 animate-slide-up hover-lift">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Stethoscope className="h-5 w-5 text-primary" />
+            <div className="p-1.5 rounded-lg bg-primary/20">
+              <Stethoscope className="h-4 w-4 text-primary" />
+            </div>
             Immediate Action Required
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-foreground">{analysis.recommendations.immediateAction}</p>
+          <p className="text-foreground leading-relaxed">{analysis.recommendations.immediateAction}</p>
           {analysis.recommendations.additionalTests.length > 0 && (
             <>
               <Separator className="my-4" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Additional Tests Recommended:</p>
-                <ul className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground mb-3">Additional Tests Recommended:</p>
+                <ul className="space-y-2">
                   {analysis.recommendations.additionalTests.map((test, index) => (
-                    <li key={index} className="text-sm text-foreground flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    <li 
+                      key={index} 
+                      className="text-sm text-foreground flex items-center gap-2 p-2 rounded-lg glass-subtle"
+                    >
+                      <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                       {test}
                     </li>
                   ))}
@@ -368,13 +388,15 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
       </Card>
 
       {/* Disclaimer */}
-      <Card className="shadow-soft border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+      <Card className="glass shadow-soft border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 animate-fade-in-up">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
+            </div>
             <div>
               <p className="font-semibold text-amber-800 dark:text-amber-400 mb-1">Important Disclaimer</p>
-              <p className="text-sm text-amber-700 dark:text-amber-500">{analysis.disclaimer}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-500 leading-relaxed">{analysis.disclaimer}</p>
             </div>
           </div>
         </CardContent>
