@@ -27,20 +27,29 @@ export function SeverityIndicator({ severity, score, size = 'md', showLabel = tr
   const textSizes = {
     sm: 'text-xs',
     md: 'text-sm',
-    lg: 'text-base',
+    lg: 'text-lg',
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <div className={cn(
-        "rounded-full animate-pulse",
-        config.bgColor,
-        sizeClasses[size]
-      )} />
+    <div className="flex items-center gap-3">
+      <div className="relative">
+        <div className={cn(
+          "rounded-full",
+          config.bgColor,
+          sizeClasses[size]
+        )} />
+        {/* Pulse ring animation */}
+        <div className={cn(
+          "absolute inset-0 rounded-full animate-ping opacity-40",
+          config.bgColor
+        )} />
+      </div>
       {showLabel && (
-        <span className={cn("font-medium", config.color, textSizes[size])}>
+        <span className={cn("font-semibold tracking-tight", config.color, textSizes[size])}>
           {config.label}
-          {score !== undefined && ` (${score}%)`}
+          {score !== undefined && (
+            <span className="text-muted-foreground font-normal ml-1">({score}%)</span>
+          )}
         </span>
       )}
     </div>
@@ -52,9 +61,10 @@ export function SeverityBadge({ severity }: { severity: string }) {
   
   return (
     <span className={cn(
-      "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-primary-foreground",
+      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-primary-foreground transition-all hover:scale-105",
       config.bgColor
     )}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
       {config.label}
     </span>
   );
